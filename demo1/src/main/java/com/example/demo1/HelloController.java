@@ -29,9 +29,6 @@ public class HelloController implements Initializable {
     @FXML
     private Canvas canvas;
 
-    Image image = new Image(System.getProperty("user.dir")+"/src/main/resources/img/map.png");
-
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -40,11 +37,43 @@ public class HelloController implements Initializable {
         rd3.setToggleGroup(toggleGroup);
         rd4.setToggleGroup(toggleGroup);
         rd5.setToggleGroup(toggleGroup);
-
+        rd1.setSelected(true);
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        drawFloor("1");
+        rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                drawFloor(rd1.getText());
+            }
+        });
+        rd2.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                drawFloor(rd2.getText());
+            }
+        });
+        rd3.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                drawFloor(rd3.getText());
+            }
+        });
+        rd4.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                drawFloor(rd4.getText());
+            }
+        });
+        rd5.selectedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                drawFloor(rd5.getText());
+            }
+        });
+
+
+
+    }
+
+    public void drawFloor(String floor){
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        Image image = new Image(System.getProperty("user.dir")+"/src/main/resources/img/floor"+floor+".png");
         gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
-
-
     }
 
 
