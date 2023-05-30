@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="1350.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.HelloController">
+   <children>
+      <Canvas fx:id="canvas" height="616.0" layoutX="77.0" layoutY="59.0" width="933.0" />
+      <Button layoutX="1114.0" layoutY="131.0" mnemonicParsing="false" text="Button" />
+      <Button layoutX="1114.0" layoutY="70.0" mnemonicParsing="false" text="Button" />
+
+      <RadioButton fx:id="rd1" layoutX="1051.0" layoutY="65.0" mnemonicParsing="false" text="1" />
+      <RadioButton fx:id="rd2" layoutX="1051.0" layoutY="101.0" mnemonicParsing="false" text="2" />
+      <RadioButton fx:id="rd3" layoutX="1051.0" layoutY="135.0" mnemonicParsing="false" text="3" />
+      <RadioButton fx:id="rd4" layoutX="1051.0" layoutY="169.0" mnemonicParsing="false" text="4" />
+      <RadioButton fx:id="rd5" layoutX="1051.0" layoutY="202.0" mnemonicParsing="false" text="5" />
+   </children>
+</Pane>
