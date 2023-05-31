@@ -3,8 +3,9 @@
 <?import javafx.scene.canvas.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<Pane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="1350.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.HelloController">
+<Pane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="1350.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.controller.HelloController">
    <children>
       <Canvas fx:id="canvas" height="616.0" layoutX="77.0" layoutY="59.0" width="933.0" />
       <Button layoutX="1114.0" layoutY="131.0" mnemonicParsing="false" text="Button" />
@@ -15,5 +16,15 @@
       <RadioButton fx:id="rd3" layoutX="1051.0" layoutY="135.0" mnemonicParsing="false" text="3" />
       <RadioButton fx:id="rd4" layoutX="1051.0" layoutY="169.0" mnemonicParsing="false" text="4" />
       <RadioButton fx:id="rd5" layoutX="1051.0" layoutY="202.0" mnemonicParsing="false" text="5" />
+      <Button fx:id="reset" layoutX="706.0" layoutY="134.0" mnemonicParsing="false" onAction="#onReset" prefHeight="87.0" prefWidth="107.0" text="Reiniciar" />
+      <Label layoutX="311.0" layoutY="14.0" prefWidth="198.0" text="INICIO" textAlignment="CENTER" fx:id="start">
+         <font>
+            <Font name="Roboto Light" size="36.0" />
+         </font></Label>
+      <Label layoutX="686.0" layoutY="14.0" text="DESTINO" textAlignment="CENTER" fx:id="ends">
+         <font>
+            <Font name="Roboto Light" size="36.0" />
+         </font>
+      </Label>
    </children>
 </Pane>
