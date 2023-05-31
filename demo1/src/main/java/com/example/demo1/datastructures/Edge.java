@@ -2,6 +2,9 @@ package com.example.demo1.datastructures;
 
 public class Edge<K> {
 
+    public String id;
+
+
     public Vertex<K> getVertex() {
         return vertex;
     }
@@ -21,8 +24,9 @@ public class Edge<K> {
     Vertex<K> vertex;
     int weight;
 
-    public Edge(Vertex<K> vertex, int weight) {
+    public Edge(Vertex<K> vertex, int weight, String id) {
         this.vertex = vertex;
+        this.id = id;
         this.weight = weight;
     }
 }

@@ -17,14 +17,20 @@
       <RadioButton fx:id="rd4" layoutX="1051.0" layoutY="169.0" mnemonicParsing="false" text="4" />
       <RadioButton fx:id="rd5" layoutX="1051.0" layoutY="202.0" mnemonicParsing="false" text="5" />
       <Button fx:id="reset" layoutX="706.0" layoutY="134.0" mnemonicParsing="false" onAction="#onReset" prefHeight="87.0" prefWidth="107.0" text="Reiniciar" />
-      <Label layoutX="311.0" layoutY="14.0" prefWidth="198.0" text="INICIO" textAlignment="CENTER" fx:id="start">
+      <Label fx:id="start" layoutX="311.0" layoutY="14.0" prefWidth="198.0" text="INICIO" textAlignment="CENTER">
          <font>
             <Font name="Roboto Light" size="36.0" />
          </font></Label>
-      <Label layoutX="686.0" layoutY="14.0" text="DESTINO" textAlignment="CENTER" fx:id="ends">
+      <Label fx:id="ends" layoutX="686.0" layoutY="14.0" text="DESTINO" textAlignment="CENTER">
          <font>
             <Font name="Roboto Light" size="36.0" />
          </font>
       </Label>
+      <Button fx:id="connBtn" layoutX="958.0" layoutY="27.0" mnemonicParsing="false" onAction="#onAddConnection" text="AddConnection" />
+      <Label fx:id="state" layoutX="1079.0" layoutY="31.0" text="Label" />
+      <TextField fx:id="idLb" layoutX="1187.0" layoutY="27.0" />
+      <TextField fx:id="weighLb" layoutX="1187.0" layoutY="70.0" />
+      <Label layoutX="1187.0" layoutY="5.0" text="ID" />
+      <Label layoutX="1187.0" layoutY="51.0" text="Weight" />
    </children>
 </Pane>

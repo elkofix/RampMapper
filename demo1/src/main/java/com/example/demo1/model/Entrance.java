@@ -39,4 +39,12 @@ public class Entrance {
         this.posX = posX;
         this.posY = posY;
     }
+
+    public int getFloor() {
+        return floor;
+    }
+
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
 }

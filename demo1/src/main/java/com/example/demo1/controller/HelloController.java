@@ -1,26 +1,25 @@
 package com.example.demo1.controller;
 
 import com.example.demo1.datastructures.Graph;
-import com.example.demo1.model.Connection;
-import com.example.demo1.model.Entrance;
+import com.example.demo1.model.*;
+import com.google.gson.GsonBuilder;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import com.google.gson.Gson;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ResourceBundle;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,6 +27,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class HelloController implements Initializable {
     @FXML
     public Pane root;
+    public Button connBtn;
+    public Label state;
+
+    public boolean add;
+    public TextField idLb;
+    public TextField weighLb;
 
     private ArrayList<Connection> connections = new ArrayList<>();
     public Button reset;
@@ -36,6 +41,7 @@ public class HelloController implements Initializable {
     Entrance init = null;
     Entrance end = null;
 
+    ArrayList<Point> path= new ArrayList<>();
     @FXML
     public RadioButton rd1;
 
@@ -55,17 +61,44 @@ public class HelloController implements Initializable {
 
     private boolean firstSelected;
 
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Connection.class, new ConnectionTypeAdapter())
+            .registerTypeAdapter(Entrance.class, new EntranceTypeAdapter())
+            .create();
     @FXML
     private Canvas canvas;
     private GraphicsContext gc;
     private Graph<Entrance> graph;
+
+    public void saveData(){
+
+        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
+        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
+
+        if(!dataDirectory.exists()){
+            dataDirectory.mkdirs();
+        }
+
+        String json =  gson.toJson(connections);
+        try{
+            FileOutputStream fos = new FileOutputStream(result);
+            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        graph = new Graph<>(false);
         try {
             importPlaces();
         }catch (IOException e){
             System.out.println(e.getMessage());
         }
+        System.out.println(add);
         ToggleGroup toggleGroup = new ToggleGroup();
         gc = canvas.getGraphicsContext2D();
         rd1.setToggleGroup(toggleGroup);
@@ -76,19 +109,7 @@ public class HelloController implements Initializable {
         rd1.setSelected(true);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawFloor("1");
-      /*   ArrayList<Point2D> path1 = new ArrayList<>();
-        path1.add(new Point2D(100, 75));
-        path1.add(new Point2D(150, 125));
-        path1.add(new Point2D(200, 175));
-        connectOvals(gc, entrances.get(1), entrances.get(10), path1);
-
-        ArrayList<Point2D> path2 = new ArrayList<>();
-       path2.add(new Point2D(200, 125));
-        path2.add(new Point2D(250, 300));
-        path2.add(new Point2D(300, 100));
-        path2.add(new Point2D(425, 180));
-
-        connectOvals(gc, entrances.get(2), entrances.get(20), path2);*/
+        drawConnection();
         rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 drawFloor(rd1.getText());
@@ -119,7 +140,10 @@ public class HelloController implements Initializable {
         canvas.setOnMouseClicked(event -> {
             double clickX = event.getX();
             double clickY = event.getY();
-        System.out.println(clickX+" "+clickY);
+            if(add==true){
+                path.add(new Point(clickX, clickY));
+                System.out.println("ADDED");
+            }
             // Verifica si las coordenadas del clic están dentro de alguno de los óvalos
             for (Entrance oval : entrances) {
                 if (clickX >= oval.getPosX() && clickX <= oval.getPosX() + 10 &&
@@ -161,6 +185,24 @@ public class HelloController implements Initializable {
 
     }
 
+    public void importGraph() throws IOException {
+        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
+        try {
+            FileInputStream fis = new FileInputStream(result);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+            String line;
+            StringBuilder json = new StringBuilder();
+            while ( (line = reader.readLine()) != null){
+                json.append(line);
+            }
+            graph = gson.fromJson(json.toString(), Graph<Entrance>.class);
+        } catch (FileNotFoundException e){
+            System.out.println("No hay datos para cargar");
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
     public void importPlaces() throws IOException {
         File file = new File(System.getProperty("user.dir")+"/src/main/resources/data/places.txt");
         Scanner sc = new Scanner(file);
@@ -169,7 +211,27 @@ public class HelloController implements Initializable {
             String line = sc.nextLine();
             String[] data = line.split(" ");
             Entrance entrance = new Entrance(data[0],Double.parseDouble(data[1]), Double.parseDouble(data[2]), data[3]);
+            graph.addVertex(entrance);
             entrances.add(entrance);
+        }
+        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
+        try {
+            FileInputStream fis = new FileInputStream(result);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+            String line;
+            StringBuilder json = new StringBuilder();
+            while ( (line = reader.readLine()) != null){
+                json.append(line);
+            }
+            Connection[] connectionsArr = gson.fromJson(json.toString(), Connection[].class);
+            if(connectionsArr!=null){
+                Collections.addAll(connections, connectionsArr);
+            }
+
+        } catch (FileNotFoundException e){
+            System.out.println("No hay datos para cargar");
+        } catch (IOException e){
+            e.printStackTrace();
         }
      }
 
@@ -189,6 +251,14 @@ public class HelloController implements Initializable {
 
 
     public void onReset(ActionEvent actionEvent) {
+        Connection con = new Connection(init, end,path.toArray(Point[]::new));
+        con.addPoints();
+        //graph.addEdge(init, end, );
+        connections.add(con);
+
+        System.out.println(connections.get(0).getPath());
+        path.clear();
+        saveData();
         if(init !=null) {
             gc.setFill(Color.RED);
             gc.fillOval(init.getPosX(), init.getPosY(), 10, 10);
@@ -208,20 +278,39 @@ public class HelloController implements Initializable {
 
     }
 
-    private void connectOvals(GraphicsContext gc, Entrance oval1, Entrance oval2, ArrayList<Point2D> path) {
-        connections.add(new Connection(oval1, oval2, path));
-        drawConnection(gc, connections.get(connections.size() - 1));
+    private void connectOvals(GraphicsContext gc, Entrance oval1, Entrance oval2, ArrayList<Point> path) {
+        //connections.add(new Connection(oval1, oval2, path));
+        //drawConnection(gc, connections.get(connections.size() - 1));
     }
 
-    private void drawConnection(GraphicsContext gc, Connection connection) {
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
-        gc.beginPath();
-        gc.moveTo(connection.getPath().get(0).getX(), connection.getPath().get(0).getY());
-        for (int i = 1; i < connection.getPath().size(); i++) {
-            gc.lineTo(connection.getPath().get(i).getX(), connection.getPath().get(i).getY());
+    private void drawConnection() {
+        if(!connections.isEmpty()) {
+            Connection connection = connections.get(0);
+            ArrayList<Point> con = connection.getPath();
+            for (Point x : con) {
+                System.out.println(x.getX() + " " + x.getY());
+            }
+            gc.setStroke(Color.BLACK);
+            gc.setLineWidth(2);
+            gc.beginPath();
+            gc.moveTo(connection.getPath().get(0).getX(), connection.getPath().get(0).getY());
+            for (int i = 1; i < connection.getPath().size(); i++) {
+                gc.lineTo(connection.getPath().get(i).getX(), connection.getPath().get(i).getY());
+            }
+            gc.stroke();
+            gc.closePath();
         }
-        gc.stroke();
-        gc.closePath();
+    }
+
+    public void onAddConnection(ActionEvent actionEvent) {
+        add = !add;
+        System.out.println(add);
+        if(add==true){
+          state.setText("On");
+          state.setStyle("-fx-text-fill: GREEN");
+        }else {
+            state.setText("Off");
+            state.setStyle("-fx-text-fill: RED");
+        }
     }
 }

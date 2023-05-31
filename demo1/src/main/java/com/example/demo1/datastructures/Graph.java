@@ -47,14 +47,14 @@ public class Graph<K> {
     }
 
     //@Override
-    public boolean addEdge(K init, K end, int weight) {
+    public boolean addEdge(K init, K end, int weight, String id) {
         Vertex<K> first = vertexList.get(init);
         Vertex<K> last = vertexList.get(end);
         if (first != null && last != null) {
             if (isDirected) {
-                return first.addEdge(new Edge<>(last, weight));
+                return first.addEdge(new Edge<>(last, weight, id));
             }
-            return first.addEdge(new Edge<>(last, weight)) && last.addEdge(new Edge<>(first, weight));
+            return first.addEdge(new Edge<>(last, weight, id)) && last.addEdge(new Edge<>(first, weight, id));
         }
         return false;
     }
@@ -167,13 +167,13 @@ public class Graph<K> {
         u.color = Color.BLACK;
     }
 
-    public DijsktraArrays<K> dijsktra(K value) {
+    public Pair<HashMap<Vertex<K>, Integer>, HashMap<Vertex<K>, Vertex<K>>> dijsktra(K value) {
         Vertex<K> source = vertexList.get(value);
         HashMap<Vertex<K>, Integer> dist = new HashMap<>();
         HashMap<Vertex<K>, Vertex<K>> prev = new HashMap<>();
         dist.put(source, 0);
         source.priority = 0;
-        PriorityQueue<Vertex<K>> Q = new PriorityQueue<>(new GraphCompare<K>());
+        PriorityQueue<Vertex<K>> Q = new PriorityQueue<>(Comparator.comparingInt(o -> o.priority));
         ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
         for (Vertex<K> v : vertices) {
             if (!v.equals(source)) {
@@ -199,11 +199,11 @@ public class Graph<K> {
             }
         }
 
-        return new DijsktraArrays<K>(dist, prev);
+        return new Pair<>(dist, prev);
 
     }
 
-    public FloydArrays<Vertex<K>, Integer> floyWarshall() {
+    public Pair<int[][], MatrizGenerica<Vertex<K>, Vertex<K>>> floyWarshall() {
         ArrayList<Vertex<K>> vrtx = new ArrayList<>(vertexList.values());
         int[][] distances = new int[vertexList.size()][vertexList.size()];
         MatrizGenerica<Vertex<K>, Vertex<K>> parents = new MatrizGenerica<>();
@@ -239,7 +239,7 @@ public class Graph<K> {
                 }
             }
         }
-        return new FloydArrays<>(distances, parents);
+        return new Pair<>(distances, parents);
     }
 
     public void Prim() {
@@ -250,7 +250,7 @@ public class Graph<K> {
             u.parent = null;
         }
         ArrayList<Vertex<K>> as = new ArrayList<>(vertexList.values());
-        PriorityQueue<Edge<K>> QU = new PriorityQueue<>(new EdgeComparator<K>());
+        PriorityQueue<Edge<K>> QU = new PriorityQueue<>(Comparator.comparingInt(o -> o.weight));
         for (Vertex<K> a : as) {
             QU.addAll(a.getAdjacentList());
         }
@@ -259,7 +259,7 @@ public class Graph<K> {
         Vertex<K> r = minummEdge.getVertex();
         r.distance = 0;
         r.priority = 0;
-        PriorityQueue<Vertex<K>> Q = new PriorityQueue<Vertex<K>>(new GraphCompare<>());
+        PriorityQueue<Vertex<K>> Q = new PriorityQueue<Vertex<K>>(Comparator.comparingInt(o -> o.priority));
         Q.addAll(vertexList.values());
         while (!Q.isEmpty()) {
             Vertex<K> u = Q.remove();
