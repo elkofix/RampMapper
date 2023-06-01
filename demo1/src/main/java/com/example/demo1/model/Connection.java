@@ -35,11 +35,6 @@ public class Connection {
         this.path = new ArrayList<>();
         Collections.addAll(this.path, path);
     }
-    public void addPoints(){
-        this.path.add(new Point(oval2.getPosX(), oval2.getPosY()));
-        Collections.reverse(this.path);
-        this.path.add(new Point(oval1.getPosX(), oval1.getPosY()));
-    }
 
     public Entrance getOval1() {
         return oval1;

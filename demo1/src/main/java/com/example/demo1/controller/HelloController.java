@@ -28,8 +28,11 @@ public class HelloController implements Initializable {
     @FXML
     public Pane root;
     public Button connBtn;
+    public Button minBtn;
+
+    String currentFloor;
     public Label state;
-    String graphc;
+    String graphc = "";
     public boolean add;
     public TextField idLb;
     public TextField weighLb;
@@ -76,10 +79,10 @@ public class HelloController implements Initializable {
         graph = new Graph<>(false);
         try {
             importPlaces();
+            importGraph();
         }catch (IOException e){
             System.out.println(e.getMessage());
         }
-        System.out.println(add);
         ToggleGroup toggleGroup = new ToggleGroup();
         gc = canvas.getGraphicsContext2D();
         rd1.setToggleGroup(toggleGroup);
@@ -90,45 +93,56 @@ public class HelloController implements Initializable {
         rd1.setSelected(true);
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawFloor("1");
+        currentFloor = "1";
         drawConnection();
         rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                currentFloor = rd1.getText();
                 drawFloor(rd1.getText());
+                paintSelected();
             }
         });
         rd2.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                currentFloor = rd2.getText();
                 drawFloor(rd2.getText());
+                paintSelected();
             }
         });
         rd3.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                currentFloor = rd3.getText();
                 drawFloor(rd3.getText());
+                paintSelected();
             }
         });
         rd4.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                currentFloor = rd4.getText();
                 drawFloor(rd4.getText());
+                paintSelected();
             }
         });
         rd5.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                currentFloor = rd5.getText();
                 drawFloor(rd5.getText());
+                paintSelected();
             }
         });
 
         firstSelected = false;
         canvas.setOnMouseClicked(event -> {
+
             double clickX = event.getX();
             double clickY = event.getY();
             if(add==true){
                 path.add(new Point(clickX, clickY));
-                System.out.println("ADDED");
             }
             // Verifica si las coordenadas del clic están dentro de alguno de los óvalos
             for (Entrance oval : entrances) {
                 if (clickX >= oval.getPosX() && clickX <= oval.getPosX() + 10 &&
-                        clickY >= oval.getPosY() && clickY <= oval.getPosY() + 10) {
+                        clickY >= oval.getPosY() && clickY <= oval.getPosY() + 10 && oval.getFloor()==Integer.parseInt(currentFloor)) {
                     // Cambia el color del óvalo
                     gc.setFill(Color.GREEN);
                     gc.fillOval(oval.getPosX(), oval.getPosY(), 10, 10);
@@ -143,7 +157,7 @@ public class HelloController implements Initializable {
                     if(!oval.equals(init) && firstSelected){
                         ends.setText(oval.getName());
                         if(end!=null)
-                            if(!end.equals(oval)){
+                            if(!end.equals(oval) && currentFloor.equals(end.getFloor()+"")){
                                 ends.setText(oval.getName());
                                 gc.setFill(Color.RED);
                                 gc.fillOval(end.getPosX(), end.getPosY(), 10, 10);
@@ -162,8 +176,16 @@ public class HelloController implements Initializable {
                 }
             }
         });
+    }
 
-
+    public void paintSelected(){
+        gc.setFill(Color.GREEN);
+        if(init!=null && currentFloor.equals(init.getFloor()+"")){
+            gc.fillOval(init.getPosX(), init.getPosY(), 10, 10);
+        }
+        if(end!=null && currentFloor.equals(end.getFloor()+"")){
+            gc.fillOval(end.getPosX(), end.getPosY(), 10, 10);
+        }
     }
 
     public Entrance searchEntrance(String id){
@@ -180,9 +202,9 @@ public class HelloController implements Initializable {
     public void importGraph() throws IOException {
         File file = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
         Scanner sc = new Scanner(file);
-        entrances = new ArrayList<>();
         while (sc.hasNext()){
             String line = sc.nextLine();
+            graphc += line+"\n";
             String[] data = line.split(" ");
             graph.addEdge(searchEntrance(data[0]), searchEntrance(data[1]), Integer.parseInt(data[3]), data[2]);
         }
@@ -265,24 +287,27 @@ public class HelloController implements Initializable {
 
         Image image = new Image(System.getProperty("user.dir")+"/src/main/resources/img/floor"+floor+".png");
         gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
-        drawPoints();
+        drawPoints(Integer.parseInt(floor));
     }
 
-    public void drawPoints(){
+    public void drawPoints(int floor){
         gc.setFill(Color.RED);
         for (Entrance e: entrances) {
-            gc.fillOval(e.getPosX(), e.getPosY(), 10, 10);
+            if(e.getFloor()==floor){
+                gc.fillOval(e.getPosX(), e.getPosY(), 10, 10);
+            }
+
         }
     }
 
 
     public void onReset(ActionEvent actionEvent) {
         Connection con = new Connection(init, end,path.toArray(Point[]::new), idLb.getText());
-        con.addPoints();
         graphc += init.getName()+" "+end.getName()+" "+idLb.getText()+" "+weighLb.getText()+"\n";
         connections.add(con);
-        System.out.println(connections.get(0).getPath());
         path.clear();
+        idLb.clear();
+        weighLb.clear();
         saveData();
         saveData2();
         if(init !=null) {
@@ -304,18 +329,10 @@ public class HelloController implements Initializable {
 
     }
 
-    private void connectOvals(GraphicsContext gc, Entrance oval1, Entrance oval2, ArrayList<Point> path) {
-        //connections.add(new Connection(oval1, oval2, path));
-        //drawConnection(gc, connections.get(connections.size() - 1));
-    }
-
     private void drawConnection() {
         if(!connections.isEmpty()) {
-            Connection connection = connections.get(0);
+            Connection connection = connections.get(connections.size()-1);
             ArrayList<Point> con = connection.getPath();
-            for (Point x : con) {
-                System.out.println(x.getX() + " " + x.getY());
-            }
             gc.setStroke(Color.BLACK);
             gc.setLineWidth(2);
             gc.beginPath();
@@ -330,13 +347,18 @@ public class HelloController implements Initializable {
 
     public void onAddConnection(ActionEvent actionEvent) {
         add = !add;
-        System.out.println(add);
         if(add==true){
           state.setText("On");
           state.setStyle("-fx-text-fill: GREEN");
         }else {
+            if(init!=null && end!=null){
+                idLb.setText(init.getName()+"to"+end.getName());
+            }
             state.setText("Off");
             state.setStyle("-fx-text-fill: RED");
         }
+    }
+
+    public void onSearchMinPath(ActionEvent actionEvent) {
     }
 }
