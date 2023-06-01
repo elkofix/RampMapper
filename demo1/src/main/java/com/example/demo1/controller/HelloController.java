@@ -29,7 +29,7 @@ public class HelloController implements Initializable {
     public Pane root;
     public Button connBtn;
     public Label state;
-
+    String graphc;
     public boolean add;
     public TextField idLb;
     public TextField weighLb;
@@ -70,26 +70,7 @@ public class HelloController implements Initializable {
     private GraphicsContext gc;
     private Graph<Entrance> graph;
 
-    public void saveData(){
 
-        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
-        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
-
-        if(!dataDirectory.exists()){
-            dataDirectory.mkdirs();
-        }
-
-        String json =  gson.toJson(connections);
-        try{
-            FileOutputStream fos = new FileOutputStream(result);
-            fos.write(json.getBytes(StandardCharsets.UTF_8));
-            fos.close();
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }catch (IOException e){
-            e.printStackTrace();
-        }
-    }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         graph = new Graph<>(false);
@@ -185,20 +166,51 @@ public class HelloController implements Initializable {
 
     }
 
+    public Entrance searchEntrance(String id){
+        return null;
+    }
+
     public void importGraph() throws IOException {
+
+    }
+
+    public void saveData(){
+
+        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
+        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
+
+        if(!dataDirectory.exists()){
+            dataDirectory.mkdirs();
+        }
+
+        String json =  gson.toJson(connections);
+        try{
+            FileOutputStream fos = new FileOutputStream(result);
+            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+
+    public void saveData2(){
+
+        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
         File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
-        try {
-            FileInputStream fis = new FileInputStream(result);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
-            String line;
-            StringBuilder json = new StringBuilder();
-            while ( (line = reader.readLine()) != null){
-                json.append(line);
-            }
-            graph = gson.fromJson(json.toString(), Graph<Entrance>.class);
-        } catch (FileNotFoundException e){
-            System.out.println("No hay datos para cargar");
-        } catch (IOException e){
+        if(!dataDirectory.exists()){
+            dataDirectory.mkdirs();
+        }
+
+        String json = graphc;
+        try{
+            FileOutputStream fos = new FileOutputStream(result);
+            fos.write(json.getBytes(StandardCharsets.UTF_8));
+            fos.close();
+        }catch (FileNotFoundException e){
+            e.printStackTrace();
+        }catch (IOException e){
             e.printStackTrace();
         }
     }
@@ -253,12 +265,12 @@ public class HelloController implements Initializable {
     public void onReset(ActionEvent actionEvent) {
         Connection con = new Connection(init, end,path.toArray(Point[]::new));
         con.addPoints();
-        //graph.addEdge(init, end, );
+        graphc += init.getName()+" "+end.getName()+" "+idLb.getText()+" "+weighLb.getText()+"\n";
         connections.add(con);
-
         System.out.println(connections.get(0).getPath());
         path.clear();
         saveData();
+        saveData2();
         if(init !=null) {
             gc.setFill(Color.RED);
             gc.fillOval(init.getPosX(), init.getPosY(), 10, 10);
