@@ -2,6 +2,14 @@ package com.example.demo1.datastructures;
 
 public class Edge<K> {
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String id;
 
 

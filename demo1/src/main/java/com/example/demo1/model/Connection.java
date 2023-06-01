@@ -9,6 +9,8 @@ public class Connection {
         this.oval1 = oval1;
     }
 
+    String id;
+
     public void setOval2(Entrance oval2) {
         this.oval2 = oval2;
     }
@@ -26,8 +28,9 @@ public class Connection {
 
     ArrayList<Point> path;
 
-    public Connection(Entrance oval1, Entrance oval2, Point[] path) {
+    public Connection(Entrance oval1, Entrance oval2, Point[] path, String id) {
         this.oval1 = oval1;
+        this.id = id;
         this.oval2 = oval2;
         this.path = new ArrayList<>();
         Collections.addAll(this.path, path);

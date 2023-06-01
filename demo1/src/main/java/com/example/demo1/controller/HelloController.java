@@ -167,11 +167,25 @@ public class HelloController implements Initializable {
     }
 
     public Entrance searchEntrance(String id){
-        return null;
+        Entrance result = null;
+        for (Entrance e: entrances) {
+            if(e.getName().equals(id)){
+                result = e;
+                break;
+            }
+        }
+        return result;
     }
 
     public void importGraph() throws IOException {
-
+        File file = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
+        Scanner sc = new Scanner(file);
+        entrances = new ArrayList<>();
+        while (sc.hasNext()){
+            String line = sc.nextLine();
+            String[] data = line.split(" ");
+            graph.addEdge(searchEntrance(data[0]), searchEntrance(data[1]), Integer.parseInt(data[3]), data[2]);
+        }
     }
 
     public void saveData(){
@@ -263,7 +277,7 @@ public class HelloController implements Initializable {
 
 
     public void onReset(ActionEvent actionEvent) {
-        Connection con = new Connection(init, end,path.toArray(Point[]::new));
+        Connection con = new Connection(init, end,path.toArray(Point[]::new), idLb.getText());
         con.addPoints();
         graphc += init.getName()+" "+end.getName()+" "+idLb.getText()+" "+weighLb.getText()+"\n";
         connections.add(con);
