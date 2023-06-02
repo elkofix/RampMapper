@@ -9,6 +9,23 @@ public class Connection {
         this.oval1 = oval1;
     }
 
+    public int getWeight() {
+        return weight;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public int weight;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     String id;
 
     public void setOval2(Entrance oval2) {
@@ -28,9 +45,10 @@ public class Connection {
 
     ArrayList<Point> path;
 
-    public Connection(Entrance oval1, Entrance oval2, Point[] path, String id) {
+    public Connection(Entrance oval1, Entrance oval2, Point[] path, String id, int weight) {
         this.oval1 = oval1;
         this.id = id;
+        this.weight = weight;
         this.oval2 = oval2;
         this.path = new ArrayList<>();
         Collections.addAll(this.path, path);

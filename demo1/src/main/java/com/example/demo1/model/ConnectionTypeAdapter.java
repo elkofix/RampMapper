@@ -16,8 +16,9 @@ public class ConnectionTypeAdapter implements JsonSerializer<Connection>, JsonDe
         Entrance oval2 = context.deserialize(jsonObject.get("oval2"), Entrance.class);
         Point[] path = context.deserialize(jsonObject.get("path"), Point[].class);
         String id = context.deserialize(jsonObject.get("id"), String.class);
+        int weight = context.deserialize(jsonObject.get("weight"), int.class);
 
-        Connection connection = new Connection(oval1, oval2, path, id);
+        Connection connection = new Connection(oval1, oval2, path, id, weight);
         return connection;
     }
 
@@ -28,7 +29,8 @@ public class ConnectionTypeAdapter implements JsonSerializer<Connection>, JsonDe
         jsonObject.add("oval1", context.serialize(src.getOval1()));
         jsonObject.add("oval2", context.serialize(src.getOval2()));
         jsonObject.add("path", context.serialize(src.getPath()));
-
+        jsonObject.add("id", context.serialize(src.getId()));
+        jsonObject.add("weight", context.serialize(src.getWeight()));
         return jsonObject;
     }
 }

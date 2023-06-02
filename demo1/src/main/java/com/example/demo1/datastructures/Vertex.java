@@ -3,6 +3,8 @@ package com.example.demo1.datastructures;
 import src.model.Color;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class Vertex<K> {
     K value;
@@ -25,7 +27,7 @@ public class Vertex<K> {
         this.distance = distance;
     }
 
-    Vertex<K> parent;
+    public Vertex<K> parent;
 
     int distance;
 
@@ -92,6 +94,17 @@ public class Vertex<K> {
         return null;
     }
 
+    public Edge<K> findEdge(Vertex<K> to){
+        adjacentList.sort(Comparator.comparingInt(o -> o.weight));
+        Edge<K> found = null;
+        for (Edge<K> e: adjacentList) {
+            if(e.getVertex().equals(to)){
+                found = e;
+               break;
+            }
+        }
+        return found;
+    }
 
     Color color;
     ArrayList<Edge<K>> adjacentList;

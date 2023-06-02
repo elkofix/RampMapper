@@ -1,6 +1,9 @@
 package com.example.demo1.controller;
 
+import com.example.demo1.datastructures.Edge;
 import com.example.demo1.datastructures.Graph;
+import com.example.demo1.datastructures.Pair;
+import com.example.demo1.datastructures.Vertex;
 import com.example.demo1.model.*;
 import com.google.gson.GsonBuilder;
 import javafx.event.ActionEvent;
@@ -18,10 +21,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.ResourceBundle;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class HelloController implements Initializable {
@@ -94,7 +94,7 @@ public class HelloController implements Initializable {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         drawFloor("1");
         currentFloor = "1";
-        drawConnection();
+        printConnections();
         rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 currentFloor = rd1.getText();
@@ -129,6 +129,7 @@ public class HelloController implements Initializable {
                 drawFloor(rd5.getText());
                 paintSelected();
             }
+
         });
 
         firstSelected = false;
@@ -199,9 +200,16 @@ public class HelloController implements Initializable {
         return result;
     }
 
+    public void printConnections(){
+        for (Connection con: connections) {
+            drawConnection(con);
+        }
+    }
+
     public void importGraph() throws IOException {
-        File file = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
+        File file = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data/graph.txt");
         Scanner sc = new Scanner(file);
+        int i = 0;
         while (sc.hasNext()){
             String line = sc.nextLine();
             graphc += line+"\n";
@@ -212,8 +220,8 @@ public class HelloController implements Initializable {
 
     public void saveData(){
 
-        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
-        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
+        File dataDirectory = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data");
+        File result = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data/connections.json");
 
         if(!dataDirectory.exists()){
             dataDirectory.mkdirs();
@@ -233,8 +241,8 @@ public class HelloController implements Initializable {
 
     public void saveData2(){
 
-        File dataDirectory = new File(System.getProperty("user.dir")+"/src/main/resources/data");
-        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/graph.txt");
+        File dataDirectory = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data");
+        File result = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data/graph.txt");
         if(!dataDirectory.exists()){
             dataDirectory.mkdirs();
         }
@@ -252,7 +260,7 @@ public class HelloController implements Initializable {
     }
 
     public void importPlaces() throws IOException {
-        File file = new File(System.getProperty("user.dir")+"/src/main/resources/data/places.txt");
+        File file = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data/places.txt");
         Scanner sc = new Scanner(file);
         entrances = new ArrayList<>();
         while (sc.hasNext()){
@@ -262,7 +270,7 @@ public class HelloController implements Initializable {
             graph.addVertex(entrance);
             entrances.add(entrance);
         }
-        File result = new File(System.getProperty("user.dir")+"/src/main/resources/data/connections.json");
+        File result = new File(System.getProperty("user.dir")+"/demo1/src/main/resources/data/connections.json");
         try {
             FileInputStream fis = new FileInputStream(result);
             BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
@@ -285,7 +293,7 @@ public class HelloController implements Initializable {
 
     public void drawFloor(String floor){
 
-        Image image = new Image(System.getProperty("user.dir")+"/src/main/resources/img/floor"+floor+".png");
+        Image image = new Image(System.getProperty("user.dir")+"/demo1/src/main/resources/img/floor"+floor+".png");
         gc.drawImage(image, 0, 0, canvas.getWidth(), canvas.getHeight());
         drawPoints(Integer.parseInt(floor));
     }
@@ -302,7 +310,7 @@ public class HelloController implements Initializable {
 
 
     public void onReset(ActionEvent actionEvent) {
-        Connection con = new Connection(init, end,path.toArray(Point[]::new), idLb.getText());
+        Connection con = new Connection(init, end,path.toArray(Point[]::new), idLb.getText(), Integer.parseInt(weighLb.getText()));
         graphc += init.getName()+" "+end.getName()+" "+idLb.getText()+" "+weighLb.getText()+"\n";
         connections.add(con);
         path.clear();
@@ -329,9 +337,8 @@ public class HelloController implements Initializable {
 
     }
 
-    private void drawConnection() {
+    private void drawConnection(Connection connection) {
         if(!connections.isEmpty()) {
-            Connection connection = connections.get(connections.size()-1);
             ArrayList<Point> con = connection.getPath();
             gc.setStroke(Color.BLACK);
             gc.setLineWidth(2);
@@ -359,6 +366,54 @@ public class HelloController implements Initializable {
         }
     }
 
+    public Connection searchConection(String id){
+        Connection found = null;
+        connections.sort(Comparator.comparingInt(o -> o.weight));
+        for (Connection con: connections) {
+            if(id.equals(con.getId())){
+                found = con;
+                break;
+            }
+        }
+        return found;
+    }
+
     public void onSearchMinPath(ActionEvent actionEvent) {
+        graph.dijsktra(init);
+        HashMap<Entrance, Vertex<Entrance>> vertexList = graph.getVertexList();
+        boolean destiny = false;
+        Vertex<Entrance> from = vertexList.get(end);
+        Vertex<Entrance> to = from.parent;
+        Edge<Entrance> con = from.findEdge(to);
+        ArrayList<Connection> shortestParth = new ArrayList<>();
+        Connection connection = null;
+        if(con!=null) {
+            connection = searchConection(con.id);
+            shortestParth.add(connection);
+            from = to;
+        }
+        if(!from.equals(vertexList.get(init)) && to!=null) {
+            while (!destiny) {
+                to = from.parent;
+                con = from.findEdge(to);
+                connection = searchConection(con.id);
+                shortestParth.add(connection);
+                from = to;
+                if (from.equals(vertexList.get(init))) {
+                    destiny = true;
+                }
+            }
+        }
+        if(!shortestParth.isEmpty()) {
+            for (Connection com : shortestParth) {
+                drawConnection(com);
+            }
+        }else{
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Camino no encontrado");
+            alert.setHeaderText("Error");
+            alert.setContentText("Lamentablemente no existe un camino entre: "+init.getName()+" y "+end.getName()+"");
+            alert.showAndWait();
+        }
     }
 }

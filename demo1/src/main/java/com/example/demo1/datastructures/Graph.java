@@ -174,34 +174,34 @@ public class Graph<K> {
         dist.put(source, 0);
         source.priority = 0;
         PriorityQueue<Vertex<K>> Q = new PriorityQueue<>(Comparator.comparingInt(o -> o.priority));
-        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
-        for (Vertex<K> v : vertices) {
+        for (Vertex<K> v : vertexList.values()) {
             if (!v.equals(source)) {
                 v.priority = Integer.MAX_VALUE;
                 dist.put(v, Integer.MAX_VALUE);
                 prev.put(v, null);
+                v.parent=null;
             }
             Q.add(v);
         }
+
         while (!Q.isEmpty()) {
             Vertex<K> u = Q.remove();
             for (Edge<K> v : u.adjacentList) {
-                int alt = dist.get(u) + v.getWeight();
-                if (alt < dist.get(v.getVertex())) {
+                int alt = u.priority + v.getWeight();
+                if (alt < v.getVertex().priority) {
                     dist.put(v.getVertex(), alt);
                     prev.put(v.getVertex(), u);
+                    v.getVertex().parent = u;
+                    Q.remove(v.getVertex());
                     v.getVertex().priority = alt;
-                    Vertex<K> temp = new Vertex<>(null);
-                    temp.priority = Integer.MIN_VALUE;
-                    Q.add(temp);
-                    Q.remove(temp);
+                    Q.add(v.getVertex());
                 }
             }
         }
-
         return new Pair<>(dist, prev);
-
     }
+
+
 
     public Pair<int[][], MatrizGenerica<Vertex<K>, Vertex<K>>> floyWarshall() {
         ArrayList<Vertex<K>> vrtx = new ArrayList<>(vertexList.values());
