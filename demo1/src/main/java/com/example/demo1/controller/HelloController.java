@@ -1,9 +1,6 @@
 package com.example.demo1.controller;
 
-import com.example.demo1.datastructures.Edge;
-import com.example.demo1.datastructures.Graph;
-import com.example.demo1.datastructures.Pair;
-import com.example.demo1.datastructures.Vertex;
+import com.example.demo1.datastructures.*;
 import com.example.demo1.model.*;
 import com.google.gson.GsonBuilder;
 import javafx.event.ActionEvent;
@@ -71,30 +68,23 @@ public class HelloController implements Initializable {
     @FXML
     private Canvas canvas;
     private GraphicsContext gc;
-    private Graph<Entrance> graph;
+    private IGraph<Entrance> graph;
 
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        graph = new Graph<>(false);
+    public void init(int graphType){
+        if(graphType==1){
+            graph = new Graph<>(false);
+        }else{
+            graph = new GraphMatrix<>(false);
+        }
         try {
             importPlaces();
             importGraph();
         }catch (IOException e){
             System.out.println(e.getMessage());
         }
-        ToggleGroup toggleGroup = new ToggleGroup();
-        gc = canvas.getGraphicsContext2D();
-        rd1.setToggleGroup(toggleGroup);
-        rd2.setToggleGroup(toggleGroup);
-        rd3.setToggleGroup(toggleGroup);
-        rd4.setToggleGroup(toggleGroup);
-        rd5.setToggleGroup(toggleGroup);
-        rd1.setSelected(true);
-        GraphicsContext gc = canvas.getGraphicsContext2D();
         drawFloor("1");
-        currentFloor = "1";
         printConnections();
+        currentFloor = "1";
         rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 currentFloor = rd1.getText();
@@ -177,6 +167,19 @@ public class HelloController implements Initializable {
                 }
             }
         });
+    }
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        ToggleGroup toggleGroup = new ToggleGroup();
+        gc = canvas.getGraphicsContext2D();
+        rd1.setToggleGroup(toggleGroup);
+        rd2.setToggleGroup(toggleGroup);
+        rd3.setToggleGroup(toggleGroup);
+        rd4.setToggleGroup(toggleGroup);
+        rd5.setToggleGroup(toggleGroup);
+        rd1.setSelected(true);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
     }
 
     public void paintSelected(){

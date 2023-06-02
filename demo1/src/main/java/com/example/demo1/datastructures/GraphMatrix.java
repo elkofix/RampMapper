@@ -2,7 +2,7 @@ package com.example.demo1.datastructures;
 
 import java.util.*;
 
-public class GraphMatrix<K> {
+public class GraphMatrix<K> implements IGraph<K>{
     private boolean isDirected;
     int time;
 
@@ -13,6 +13,7 @@ public class GraphMatrix<K> {
     }
     public MatrizGenerica<K, Integer>  adjacentMatrix;
 
+    @Override
     public HashMap<K, Vertex<K>> getVertexList() {
         return vertexList;
     }
@@ -32,7 +33,7 @@ public class GraphMatrix<K> {
         this.forSearch = forSearch;
     }
 
-    //@Override
+    @Override
     public boolean addVertex(K vertex) {
         if (adjacentMatrix.getValor(vertex, vertex) == null) {
             Vertex<K> v = new Vertex<>(vertex);
@@ -44,15 +45,8 @@ public class GraphMatrix<K> {
 
     }
 
-    public boolean addVertex(Vertex<K> vertex) {
-        if (adjacentMatrix.getValor(vertex.getValue(), vertex.getValue()) == null) {
-            adjacentMatrix.setValor(vertex.getValue(), vertex.getValue(), 0);
-            return true;
-        }
-        return false;
-    }
 
-    //@Override
+    @Override
     public boolean addEdge(K init, K end, int weight, String id) {
         Vertex<K> first = vertexList.get(init);
         Vertex<K> last = vertexList.get(end);
@@ -74,7 +68,7 @@ public class GraphMatrix<K> {
         return false;
     }
 
-    //@Override
+    @Override
     public boolean deleteVertex(K vertex) {
        return adjacentMatrix.deleteValor(vertex, vertex);
     }
@@ -95,17 +89,17 @@ public class GraphMatrix<K> {
         return false;
     }*/
 
-    //@Override
+    @Override
     public boolean vertexExists(K vertex) {
         return vertexList.get(vertex) != null;
     }
 
-    //@Override
+    @Override
     public boolean edgeExists(K init, K end) {
         return adjacentMatrix.getValor(init, init)!=null;
     }
 
-    //@Override
+    @Override
     public void BFS(K ver) {
         Vertex<K> s = vertexList.get(ver);
         if (s == null) {
@@ -141,7 +135,7 @@ public class GraphMatrix<K> {
         forSearch = vertices;
     }
 
-    //@Override
+    @Override
     public void DFS() {
         ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
         for (Vertex<K> u : vertices) {
@@ -172,6 +166,7 @@ public class GraphMatrix<K> {
         u.color = src.model.Color.BLACK;
     }
 
+    @Override
     public Pair<HashMap<Vertex<K>, Integer>, HashMap<Vertex<K>, Vertex<K>>> dijsktra(K value) {
         Vertex<K> source = vertexList.get(value);
         HashMap<Vertex<K>, Integer> dist = new HashMap<>();
@@ -211,7 +206,7 @@ public class GraphMatrix<K> {
     }
 
 
-
+    @Override
     public Pair<int[][], MatrizGenerica<Vertex<K>, Vertex<K>>> floyWarshall() {
         ArrayList<Vertex<K>> vrtx = new ArrayList<>(vertexList.values());
         int[][] distances = new int[vertexList.size()][vertexList.size()];
@@ -250,7 +245,7 @@ public class GraphMatrix<K> {
         }
         return new Pair<>(distances, parents);
     }
-
+    @Override
     public void Prim() {
         for (Vertex<K> u : vertexList.values()) {
             u.distance = Integer.MAX_VALUE;

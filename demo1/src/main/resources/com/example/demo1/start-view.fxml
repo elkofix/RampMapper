@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+
+<Pane prefHeight="1920.0" prefWidth="1080.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.controller.StartView">
+   <children>
+      <Label layoutX="167.0" layoutY="49.0" text="Bienvenido a RampMapper">
+         <font>
+            <Font name="Roboto Light" size="64.0" />
+         </font>
+      </Label>
+      <Label layoutX="167.0" layoutY="152.0" text="Selecciona el grafo que quieres usar:">
+         <font>
+            <Font name="Roboto Light" size="24.0" />
+         </font>
+      </Label>
+      <RadioButton fx:id="rd1" layoutX="167.0" layoutY="270.0" mnemonicParsing="false" text="Lista de adyacencia">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </RadioButton>
+      <RadioButton fx:id="rd2"  layoutX="645.0" layoutY="270.0" mnemonicParsing="false" text="Matriz de adyacencia">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </RadioButton>
+      <Button onAction="#onEnter" layoutX="167.0" layoutY="368.0" mnemonicParsing="false" text="Entrar">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+   </children>
+</Pane>
