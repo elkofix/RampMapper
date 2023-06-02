@@ -9,7 +9,7 @@ This project we're going to model all university's main locations (classrooms, c
 ## Instrucciones
 -Para poder correr la aplicacion, tendras que añadir las librerias Gson y Junit
 
--Escoge dos puntos y oprimer "Buscar camino minimo" en pantalla se mostrara el camino mas corto
+-Escoge dos puntos y oprime "Buscar camino minimo" en pantalla se mostrara el camino mas corto
 
 -Escoge "Encontrar recubrimiento minino" en pantalla se mostrará el arbol de recubrimiento minimo
 
