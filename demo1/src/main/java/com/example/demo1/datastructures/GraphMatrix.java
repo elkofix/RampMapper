@@ -1,24 +1,29 @@
 package com.example.demo1.datastructures;
 
-import src.model.Color;
-
 import java.util.*;
 
-public class Graph<K> {
+public class GraphMatrix<K> {
     private boolean isDirected;
     int time;
 
-    public Graph(boolean isDirected) {
+    public GraphMatrix(boolean isDirected) {
         this.isDirected = isDirected;
+        adjacentMatrix = new MatrizGenerica<>();
         vertexList = new HashMap<>();
     }
+    public MatrizGenerica<K, Integer>  adjacentMatrix;
 
     public HashMap<K, Vertex<K>> getVertexList() {
         return vertexList;
     }
 
+    public void setVertexList(HashMap<K, Vertex<K>> vertexList) {
+        this.vertexList = vertexList;
+    }
+
     HashMap<K, Vertex<K>> vertexList;
 
+    ArrayList<Vertex<K>> forSearch;
     public ArrayList<Vertex<K>> getForSearch() {
         return forSearch;
     }
@@ -27,20 +32,21 @@ public class Graph<K> {
         this.forSearch = forSearch;
     }
 
-    ArrayList<Vertex<K>> forSearch;
-
     //@Override
     public boolean addVertex(K vertex) {
-        if (vertexList.get(vertex) == null) {
-            vertexList.put(vertex, new Vertex<>(vertex));
+        if (adjacentMatrix.getValor(vertex, vertex) == null) {
+            Vertex<K> v = new Vertex<>(vertex);
+            adjacentMatrix.setValor(vertex, vertex, 0);
+            vertexList.put(vertex, v);
             return true;
         }
         return false;
+
     }
 
     public boolean addVertex(Vertex<K> vertex) {
-        if (vertexList.get(vertex.getValue()) == null) {
-            vertexList.put(vertex.getValue(), vertex);
+        if (adjacentMatrix.getValor(vertex.getValue(), vertex.getValue()) == null) {
+            adjacentMatrix.setValor(vertex.getValue(), vertex.getValue(), 0);
             return true;
         }
         return false;
@@ -51,23 +57,26 @@ public class Graph<K> {
         Vertex<K> first = vertexList.get(init);
         Vertex<K> last = vertexList.get(end);
         if (first != null && last != null) {
-            if (isDirected) {
-                return first.addEdge(new Edge<>(last, weight, id));
-            }
-            return first.addEdge(new Edge<>(last, weight, id)) && last.addEdge(new Edge<>(first, weight, id));
+                if(adjacentMatrix.getValor(init, end)!=null) {
+                    if (weight > adjacentMatrix.getValor(init, end)) {
+                        return true;
+                    }
+                }
+                if (isDirected) {
+                    adjacentMatrix.setValor(init, end, weight);
+                    return first.addEdge(new Edge<>(last, weight, id));
+                }
+                adjacentMatrix.setValor(init, end, weight);
+                adjacentMatrix.setValor(end, init, weight);
+                return first.addEdge(new Edge<>(last, weight, id)) && last.addEdge(new Edge<>(first, weight, id));
+
         }
         return false;
     }
 
     //@Override
     public boolean deleteVertex(K vertex) {
-        Vertex<K> vertex1 = vertexList.get(vertex);
-        if (vertex1 != null) {
-            vertex1.selfDeleteVertex();
-            vertexList.remove(vertex);
-            return true;
-        }
-        return false;
+       return adjacentMatrix.deleteValor(vertex, vertex);
     }
 
   /*  @Override
@@ -93,15 +102,7 @@ public class Graph<K> {
 
     //@Override
     public boolean edgeExists(K init, K end) {
-        Vertex<K> first = vertexList.get(init);
-        Vertex<K> last = vertexList.get(end);
-        if (first != null && last != null) {
-            if (isDirected) {
-                return first.existVertex(last);
-            }
-            return first.existVertex(last) || last.existVertex(first);
-        }
-        return false;
+        return adjacentMatrix.getValor(init, init)!=null;
     }
 
     //@Override
@@ -111,13 +112,12 @@ public class Graph<K> {
             return;
         }
         ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
-
         for (Vertex<K> u : vertices) {
-            u.color = Color.WHITE;
+            u.color = src.model.Color.WHITE;
             u.distance = Integer.MAX_VALUE;
             u.parent = null;
         }
-        s.color = Color.GRAY;
+        s.color = src.model.Color.GRAY;
         s.distance = 0;
         s.parent = null;
         Queue<Vertex<K>> Q = new LinkedList<>();
@@ -125,16 +125,18 @@ public class Graph<K> {
         Vertex<K> u;
         while (!Q.isEmpty()) {
             u = Q.remove();
-            for (Edge<K> a : u.adjacentList) {
-                Vertex<K> v = a.getVertex();
-                if (v.color == Color.WHITE) {
-                    v.color = Color.GRAY;
-                    v.distance = u.distance + 1;
-                    v.parent = u;
-                    Q.add(v);
+            for (int i = 0; i < vertexList.size(); i++) {
+                if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0){
+                        Vertex<K> v = vertices.get(i);
+                    if (v.color == src.model.Color.WHITE) {
+                        v.color = src.model.Color.GRAY;
+                        v.distance = u.distance + 1;
+                        v.parent = u;
+                        Q.add(v);
+                    }
                 }
             }
-            u.color = Color.BLACK;
+            u.color = src.model.Color.BLACK;
         }
         forSearch = vertices;
     }
@@ -143,12 +145,12 @@ public class Graph<K> {
     public void DFS() {
         ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
         for (Vertex<K> u : vertices) {
-            u.color = Color.WHITE;
+            u.color = src.model.Color.WHITE;
             u.distance = Integer.MAX_VALUE;
             u.parent = null;
         }
         for (Vertex<K> u : vertices) {
-            if (u.color == Color.WHITE) {
+            if (u.color == src.model.Color.WHITE) {
                 DFSvisit(u);
             }
         }
@@ -156,15 +158,18 @@ public class Graph<K> {
     }
 
     public void DFSvisit(Vertex<K> u) {
-        u.color = Color.GRAY;
-        for (Edge<K> a : u.adjacentList) {
-            Vertex<K> v = a.getVertex();
-            if (v.color == Color.WHITE) {
-                v.parent = u;
-                DFSvisit(v);
+        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
+        u.color = src.model.Color.GRAY;
+        for (int i = 0; i < vertices.size(); i++) {
+            if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0){
+                Vertex<K> v = vertices.get(i);
+                if (v.color == src.model.Color.WHITE) {
+                    v.parent = u;
+                    DFSvisit(v);
+                }
             }
         }
-        u.color = Color.BLACK;
+        u.color = src.model.Color.BLACK;
     }
 
     public Pair<HashMap<Vertex<K>, Integer>, HashMap<Vertex<K>, Vertex<K>>> dijsktra(K value) {
@@ -183,18 +188,22 @@ public class Graph<K> {
             }
             Q.add(v);
         }
-
+        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
         while (!Q.isEmpty()) {
             Vertex<K> u = Q.remove();
-            for (Edge<K> v : u.adjacentList) {
-                int alt = u.priority + v.getWeight();
-                if (alt < v.getVertex().priority) {
-                    dist.put(v.getVertex(), alt);
-                    prev.put(v.getVertex(), u);
-                    v.getVertex().parent = u;
-                    Q.remove(v.getVertex());
-                    v.getVertex().priority = alt;
-                    Q.add(v.getVertex());
+            for (int i = 0; i < vertexList.values().size(); i++) {
+                if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0){
+                    Vertex<K> v = vertices.get(i);
+                    int weight = adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue());
+                    int alt = u.priority + weight;
+                    if (alt < v.priority) {
+                        dist.put(v, alt);
+                        prev.put(v, u);
+                        v.parent = u;
+                        Q.remove(v);
+                        v.priority = alt;
+                        Q.add(v);
+                    }
                 }
             }
         }
@@ -207,24 +216,24 @@ public class Graph<K> {
         ArrayList<Vertex<K>> vrtx = new ArrayList<>(vertexList.values());
         int[][] distances = new int[vertexList.size()][vertexList.size()];
         MatrizGenerica<Vertex<K>, Vertex<K>> parents = new MatrizGenerica<>();
-
         for (int i = 0; i < vrtx.size(); i++) {
             for (int j = 0; j < vrtx.size(); j++) {
                 distances[i][j] = Integer.MAX_VALUE;
                 parents.setValor(vrtx.get(i), vrtx.get(j), null);
-
             }
             distances[i][i] = 0;
             parents.setValor(vrtx.get(i), vrtx.get(i), vrtx.get(i));
         }
-
         for (Vertex<K> u : vrtx) {
             int uIndex = vrtx.indexOf(u);
-            for (Edge<K> p : u.getAdjacentList()) {
-                Vertex<K> v = p.getVertex();
-                int vIndex = vrtx.indexOf(v);
-                distances[uIndex][vIndex] = p.getWeight();
-                parents.setValor(vrtx.get(uIndex), vrtx.get(vIndex), u);
+            for (int i = 0; i < vertexList.values().size(); i++) {
+                if (adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue()) != 0){
+                    Vertex<K> v = vrtx.get(i);
+                    int p = adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue());
+                    int vIndex = vrtx.indexOf(v);
+                    distances[uIndex][vIndex] = p;
+                    parents.setValor(vrtx.get(uIndex), vrtx.get(vIndex), u);
+                }
             }
         }
 
@@ -246,50 +255,42 @@ public class Graph<K> {
         for (Vertex<K> u : vertexList.values()) {
             u.distance = Integer.MAX_VALUE;
             u.priority = Integer.MAX_VALUE;
-            u.color = Color.WHITE;
+            u.color = src.model.Color.WHITE;
             u.parent = null;
         }
         ArrayList<Vertex<K>> as = new ArrayList<>(vertexList.values());
-        PriorityQueue<Edge<K>> QU = new PriorityQueue<>(Comparator.comparingInt(o -> o.weight));
-        for (Vertex<K> a : as) {
-            QU.addAll(a.getAdjacentList());
+        PriorityQueue<Integer> QU = new PriorityQueue<>();
+        Integer minummEdge = Integer.MAX_VALUE;
+        Vertex<K> r = new Vertex<>(null);
+        for (int i = 0; i <as.size() ; i++) {
+            for (Vertex<K> a : as) {
+                if (adjacentMatrix.getValor(as.get(i).getValue(), a.getValue()) != null) {
+                    if(adjacentMatrix.getValor(as.get(i).getValue(), a.getValue()) < minummEdge){
+                        minummEdge = adjacentMatrix.getValor(as.get(i).getValue(), a.getValue());
+                        r = as.get(i);
+                    }
+                }
+            }
         }
-        Edge<K> minummEdge = QU.remove();
-        Vertex<K> r = minummEdge.getVertex();
         r.distance = 0;
         r.priority = 0;
         PriorityQueue<Vertex<K>> Q = new PriorityQueue<Vertex<K>>(Comparator.comparingInt(o -> o.priority));
         Q.addAll(vertexList.values());
         while (!Q.isEmpty()) {
             Vertex<K> u = Q.remove();
-            for (Edge<K> v : u.adjacentList) {
-                if (v.getVertex().color == Color.WHITE && v.getWeight() < v.getVertex().priority) {
-                    Q.remove(v.getVertex());
-                    v.getVertex().priority = v.getWeight();
-                    Q.add(v.getVertex());
-                    v.getVertex().parent = u;
+            for (int i = 0; i < vertexList.values().size(); i++) {
+                if (adjacentMatrix.getValor(u.getValue(), as.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), as.get(i).getValue()) != 0){
+                    Vertex<K> v = as.get(i);
+                    int weight = adjacentMatrix.getValor(u.getValue(), as.get(i).getValue());
+                    if (v.color == src.model.Color.WHITE && weight < v.priority) {
+                        Q.remove(v);
+                        v.priority = weight;
+                        Q.add(v);
+                        v.parent = u;
+                    }
                 }
             }
-            u.color = Color.BLACK;
+            u.color = src.model.Color.BLACK;
         }
     }
 }
-/*
-    public void Kruskal(){
-        Graph<K> A = new Graph<>(false);
-        DisjointSet<Vertex<K>> B = new DisjointSet<>();
-        for (Vertex<K> u: vertexList.values()) {
-            B.makeSet(u);
-        }
-        ArrayList<Vertex<K>> as = new ArrayList<>(vertexList.values());
-        ArrayList<Edge<K>> bd = new ArrayList<>();
-        for (Vertex<K> a: as) {
-            bd.addAll(a.getAdjacentList());
-        }
-        bd.sort(new EdgeComparator<K>());
-        for (Vertex<K> v:bd) {
-            if(B.findSet(v) != B.findSet())<
-        }
-        
-    }
-*/

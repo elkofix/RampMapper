@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class MatrizGenerica<K, V> {
-    private Map<K, Map<K, V>> matriz;
+    public Map<K, Map<K, V>> matriz;
 
     public MatrizGenerica() {
         matriz = new HashMap<>();
@@ -25,5 +25,16 @@ public class MatrizGenerica<K, V> {
             }
         }
         return null;
+    }
+
+    public boolean deleteValor(K fila, K columna) {
+        if (matriz.containsKey(fila)) {
+            Map<K, V> filaMap = matriz.get(fila);
+            matriz.remove(fila);
+            if (filaMap.containsKey(columna)) {
+                matriz.remove(columna);
+            }
+        }
+        return true;
     }
 }
