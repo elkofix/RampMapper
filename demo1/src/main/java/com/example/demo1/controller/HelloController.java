@@ -34,6 +34,7 @@ public class HelloController implements Initializable {
     public TextField idLb;
     public TextField weighLb;
 
+    public ArrayList<Connection> shortestPath = new ArrayList<>();
     private ArrayList<Connection> connections = new ArrayList<>();
     public Button reset;
     public Label start;
@@ -83,13 +84,16 @@ public class HelloController implements Initializable {
             System.out.println(e.getMessage());
         }
         drawFloor("1");
-        printConnections();
         currentFloor = "1";
         rd1.selectedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
                 currentFloor = rd1.getText();
                 drawFloor(rd1.getText());
                 paintSelected();
+                for (Connection con:
+                     shortestPath) {
+                    drawConnection(con);
+                }
             }
         });
         rd2.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -97,6 +101,10 @@ public class HelloController implements Initializable {
                 currentFloor = rd2.getText();
                 drawFloor(rd2.getText());
                 paintSelected();
+                for (Connection con:
+                        shortestPath) {
+                    drawConnection(con);
+                }
             }
         });
         rd3.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -104,6 +112,10 @@ public class HelloController implements Initializable {
                 currentFloor = rd3.getText();
                 drawFloor(rd3.getText());
                 paintSelected();
+                for (Connection con:
+                        shortestPath) {
+                    drawConnection(con);
+                }
             }
         });
         rd4.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -111,6 +123,10 @@ public class HelloController implements Initializable {
                 currentFloor = rd4.getText();
                 drawFloor(rd4.getText());
                 paintSelected();
+                for (Connection con:
+                        shortestPath) {
+                    drawConnection(con);
+                }
             }
         });
         rd5.selectedProperty().addListener((observable, oldValue, newValue) -> {
@@ -118,6 +134,10 @@ public class HelloController implements Initializable {
                 currentFloor = rd5.getText();
                 drawFloor(rd5.getText());
                 paintSelected();
+                for (Connection con:
+                        shortestPath) {
+                    drawConnection(con);
+                }
             }
 
         });
@@ -137,6 +157,10 @@ public class HelloController implements Initializable {
                     // Cambia el color del óvalo
                     gc.setFill(Color.GREEN);
                     gc.fillOval(oval.getPosX(), oval.getPosY(), 10, 10);
+                    if(init== null){
+                        start.setText("Inicio");
+                        firstSelected=false;
+                    }
                     if(init == null && !firstSelected){
                         init = oval;
                         firstSelected=true;
@@ -307,7 +331,6 @@ public class HelloController implements Initializable {
             if(e.getFloor()==floor){
                 gc.fillOval(e.getPosX(), e.getPosY(), 10, 10);
             }
-
         }
     }
 
@@ -341,17 +364,19 @@ public class HelloController implements Initializable {
     }
 
     private void drawConnection(Connection connection) {
-        if(!connections.isEmpty()) {
-            ArrayList<Point> con = connection.getPath();
-            gc.setStroke(Color.BLACK);
-            gc.setLineWidth(2);
-            gc.beginPath();
-            gc.moveTo(connection.getPath().get(0).getX(), connection.getPath().get(0).getY());
-            for (int i = 1; i < connection.getPath().size(); i++) {
-                gc.lineTo(connection.getPath().get(i).getX(), connection.getPath().get(i).getY());
+        if(connection!=null) {
+            if (!connections.isEmpty() && connection.getOval2().getFloor() == Integer.parseInt(currentFloor) || connection.getOval1().getFloor() == Integer.parseInt(currentFloor)) {
+                ArrayList<Point> con = connection.getPath();
+                gc.setStroke(Color.BLACK);
+                gc.setLineWidth(2);
+                gc.beginPath();
+                gc.moveTo(connection.getPath().get(0).getX(), connection.getPath().get(0).getY());
+                for (int i = 1; i < connection.getPath().size(); i++) {
+                    gc.lineTo(connection.getPath().get(i).getX(), connection.getPath().get(i).getY());
+                }
+                gc.stroke();
+                gc.closePath();
             }
-            gc.stroke();
-            gc.closePath();
         }
     }
 
@@ -382,41 +407,66 @@ public class HelloController implements Initializable {
     }
 
     public void onSearchMinPath(ActionEvent actionEvent) {
-        graph.dijsktra(init);
-        HashMap<Entrance, Vertex<Entrance>> vertexList = graph.getVertexList();
-        boolean destiny = false;
-        Vertex<Entrance> from = vertexList.get(end);
-        Vertex<Entrance> to = from.parent;
-        Edge<Entrance> con = from.findEdge(to);
-        ArrayList<Connection> shortestParth = new ArrayList<>();
-        Connection connection = null;
-        if(con!=null) {
-            connection = searchConection(con.id);
-            shortestParth.add(connection);
-            from = to;
-        }
-        if(!from.equals(vertexList.get(init)) && to!=null) {
-            while (!destiny) {
-                to = from.parent;
-                con = from.findEdge(to);
+        if(init!= null && end!=null) {
+            graph.dijsktra(init);
+            HashMap<Entrance, Vertex<Entrance>> vertexList = graph.getVertexList();
+            boolean destiny = false;
+            Vertex<Entrance> from = vertexList.get(end);
+            Vertex<Entrance> to = from.parent;
+            Edge<Entrance> con = from.findEdge(to);
+            shortestPath = new ArrayList<>();
+            Connection connection = null;
+            if (con != null) {
                 connection = searchConection(con.id);
-                shortestParth.add(connection);
+                shortestPath.add(connection);
                 from = to;
-                if (from.equals(vertexList.get(init))) {
-                    destiny = true;
+            }
+            if (!from.equals(vertexList.get(init)) && to != null) {
+                while (!destiny) {
+                    to = from.parent;
+                    con = from.findEdge(to);
+                    connection = searchConection(con.id);
+                    shortestPath.add(connection);
+                    from = to;
+                    if (from.equals(vertexList.get(init))) {
+                        destiny = true;
+                    }
                 }
             }
+            if (!shortestPath.isEmpty()) {
+                for (Connection com : shortestPath) {
+                    drawConnection(com);
+                }
+            } else {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Camino no encontrado");
+                alert.setHeaderText("Error");
+                alert.setContentText("Lamentablemente no existe un camino entre: " + init.getName() + " y " + end.getName() + "");
+                alert.showAndWait();
+            }
         }
-        if(!shortestParth.isEmpty()) {
-            for (Connection com : shortestParth) {
+    }
+
+    public void onFindMinSpan(ActionEvent actionEvent) {
+        init = null;
+        end = null;
+        drawPoints(Integer.parseInt(currentFloor));
+        graph.Prim();
+        shortestPath = new ArrayList<>();
+
+        for (Vertex<Entrance> v : graph.getVertexList().values()) {
+            Vertex<Entrance> parent = v.getParent();
+            if (parent != null) {
+                Edge<Entrance> edge = v.findEdge(parent);
+                Connection connection = searchConection(edge.getId());
+                shortestPath.add(connection);
+            }
+        }
+
+        if (!shortestPath.isEmpty()) {
+            for (Connection com : shortestPath) {
                 drawConnection(com);
             }
-        }else{
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Camino no encontrado");
-            alert.setHeaderText("Error");
-            alert.setContentText("Lamentablemente no existe un camino entre: "+init.getName()+" y "+end.getName()+"");
-            alert.showAndWait();
         }
     }
 }

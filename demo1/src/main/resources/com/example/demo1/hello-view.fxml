@@ -8,8 +8,8 @@
 <Pane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="1350.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.controller.HelloController">
    <children>
       <Canvas fx:id="canvas" height="616.0" layoutX="77.0" layoutY="59.0" width="933.0" />
-      <Button layoutX="1113.0" layoutY="140.0" mnemonicParsing="false" text="Button" />
-      <Button fx:id="minBtn"  onAction="#onSearchMinPath"  layoutX="1113.0" layoutY="97.0" mnemonicParsing="false" text="Encontra camino minimo" />
+      <Button onAction="#onFindMinSpan" layoutX="1113.0" layoutY="140.0" mnemonicParsing="false" text="Encontrar recubirmiento minomo" />
+      <Button fx:id="minBtn" layoutX="1113.0" layoutY="97.0" mnemonicParsing="false" onAction="#onSearchMinPath" text="Encontra camino minimo" />
 
       <RadioButton fx:id="rd1" layoutX="1051.0" layoutY="65.0" mnemonicParsing="false" text="1" />
       <RadioButton fx:id="rd2" layoutX="1051.0" layoutY="101.0" mnemonicParsing="false" text="2" />

@@ -70,33 +70,47 @@ public class GraphMatrix<K> implements IGraph<K>{
 
     @Override
     public boolean deleteVertex(K vertex) {
-       return adjacentMatrix.deleteValor(vertex, vertex);
+        Vertex<K> vertex1 = vertexList.get(vertex);
+        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
+        if(vertex1!=null){
+            vertexList.remove(vertex);
+            for (int i = 0; i < vertexList.size(); i++) {
+                adjacentMatrix.deleteValor(vertex, vertices.get(i).getValue());
+            }
+            return true;
+        }else {
+            return false;
+        }
+
     }
 
-  /*  @Override
-    public boolean deleteEdge(K init, K end) {
+    @Override
+    public boolean deleteEdge(K init, K end, String id) {
         Vertex<K> first = vertexList.get(init);
         Vertex<K> last = vertexList.get(end);
         if(first!=null && last!=null){
-
-            boolean result1 = vertexList.get(init).getAdjacentList().remove(last);
+            adjacentMatrix.setValor(init, end, null);
+            boolean result1 = vertexList.get(init).deleteEdge(last, id);
             if(isDirected){
                 return result1;
             }
-            boolean result2 = vertexList.get(end).getAdjacentList().remove(first);
+            adjacentMatrix.setValor(end, init, null);
+            boolean result2 = vertexList.get(end).deleteEdge(first,id);
             return result2 && result1;
         }
         return false;
-    }*/
+    }
 
     @Override
     public boolean vertexExists(K vertex) {
         return vertexList.get(vertex) != null;
     }
 
+
+
     @Override
     public boolean edgeExists(K init, K end) {
-        return adjacentMatrix.getValor(init, init)!=null;
+        return adjacentMatrix.getValor(init, end)!=null;
     }
 
     @Override
@@ -168,40 +182,41 @@ public class GraphMatrix<K> implements IGraph<K>{
 
     @Override
     public Pair<HashMap<Vertex<K>, Integer>, HashMap<Vertex<K>, Vertex<K>>> dijsktra(K value) {
-        Vertex<K> source = vertexList.get(value);
-        HashMap<Vertex<K>, Integer> dist = new HashMap<>();
-        HashMap<Vertex<K>, Vertex<K>> prev = new HashMap<>();
-        dist.put(source, 0);
-        source.priority = 0;
-        PriorityQueue<Vertex<K>> Q = new PriorityQueue<>(Comparator.comparingInt(o -> o.priority));
-        for (Vertex<K> v : vertexList.values()) {
-            if (!v.equals(source)) {
-                v.priority = Integer.MAX_VALUE;
-                dist.put(v, Integer.MAX_VALUE);
-                prev.put(v, null);
-                v.parent=null;
+            Vertex<K> source = vertexList.get(value);
+            HashMap<Vertex<K>, Integer> dist = new HashMap<>();
+            HashMap<Vertex<K>, Vertex<K>> prev = new HashMap<>();
+            dist.put(source, 0);
+            source.priority = 0;
+            PriorityQueue<Vertex<K>> Q = new PriorityQueue<>(Comparator.comparingInt(o -> o.priority));
+            for (Vertex<K> v : vertexList.values()) {
+                if (!v.equals(source)) {
+                    v.priority = Integer.MAX_VALUE;
+                    dist.put(v, Integer.MAX_VALUE);
+                    prev.put(v, null);
+                    v.parent=null;
+                }
+                Q.add(v);
             }
-            Q.add(v);
-        }
-        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
-        while (!Q.isEmpty()) {
-            Vertex<K> u = Q.remove();
-            for (int i = 0; i < vertexList.values().size(); i++) {
-                if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0){
-                    Vertex<K> v = vertices.get(i);
-                    int weight = adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue());
-                    int alt = u.priority + weight;
-                    if (alt < v.priority) {
-                        dist.put(v, alt);
-                        prev.put(v, u);
-                        v.parent = u;
-                        Q.remove(v);
-                        v.priority = alt;
-                        Q.add(v);
+            ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
+            while (!Q.isEmpty()) {
+                Vertex<K> u = Q.remove();
+                for (int i = 0; i < vertexList.values().size(); i++) {
+                    if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0){
+                        Vertex<K> v = vertices.get(i);
+                        int weight = adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue());
+                        int alt = u.priority + weight;
+                        if (alt < v.priority) {
+                            dist.put(v, alt);
+                            prev.put(v, u);
+                            v.parent = u;
+                            Q.remove(v);
+                            v.priority = alt;
+                            Q.add(v);
+                        }
                     }
                 }
             }
-        }
+
         return new Pair<>(dist, prev);
     }
 
@@ -287,5 +302,41 @@ public class GraphMatrix<K> implements IGraph<K>{
             }
             u.color = src.model.Color.BLACK;
         }
+    }
+
+    @Override
+    public ArrayList<Pair<Vertex<K>, Edge<K>>> Kruskal() {
+        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
+        ArrayList<Pair<Vertex<K>, Edge<K>>> a = new ArrayList<>();
+        for (Vertex<K> u : vertices) {
+            for (int i = 0; i < vertexList.values().size(); i++) {
+                if (adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()) != 0) {
+                    a.add(new Pair<>(u, new Edge<>(vertices.get(i), adjacentMatrix.getValor(u.getValue(), vertices.get(i).getValue()), "")));
+                }
+            }
+        }
+        Comparator<Pair<Vertex<K>, Edge<K>>> pairComparator = (o1, o2) ->
+                o1.getValue2().getWeight() - o2.getValue2().getWeight();
+
+        a.sort(pairComparator);
+
+        DisjointSet<Vertex<K>> disjointSet = new DisjointSet<>();
+        for (Vertex<K> vertex : vertices) {
+            disjointSet.makeSet(vertex);
+        }
+
+        ArrayList<Pair<Vertex<K>, Edge<K>>> mst = new ArrayList<>();
+
+        for (Pair<Vertex<K>, Edge<K>> edge : a) {
+            Vertex<K> u = edge.getValue1();
+            Vertex<K> v = edge.getValue2().getVertex();
+            if (disjointSet.findSet(u) != disjointSet.findSet(v)) {
+                mst.add(edge);
+                disjointSet.union(u, v);
+            }
+        }
+
+        return mst;
+
     }
 }

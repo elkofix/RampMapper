@@ -42,7 +42,7 @@ public class Vertex<K> {
     public void selfDeleteVertex(){
         for (Edge<K> a: adjacentList) {
             Vertex<K> vrtx = a.getVertex();
-            //vrtx.getAdjacentList().remove();
+            vrtx.deleteEdge(this, null);
         }
     }
 
@@ -80,6 +80,18 @@ public class Vertex<K> {
             }
         }
         return Integer.MAX_VALUE;
+    }
+
+    public boolean deleteEdge(Vertex<K> v, String id){
+        for (Edge<K> e: adjacentList) {
+            if(e.getVertex().equals(v) && e.getId().equals(id)){
+               return adjacentList.remove(e);
+            }
+            if(e.getVertex().equals(v) && id==null){
+                return adjacentList.remove(e);
+            }
+        }
+        return false;
     }
 
     public Vertex<K> getEdge(Vertex<K> vertex){

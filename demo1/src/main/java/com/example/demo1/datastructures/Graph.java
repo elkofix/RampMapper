@@ -71,21 +71,20 @@ public class Graph<K> implements IGraph<K>{
         return false;
     }
 
-  /*  @Override
-    public boolean deleteEdge(K init, K end) {
+    @Override
+    public boolean deleteEdge(K init, K end, String id) {
         Vertex<K> first = vertexList.get(init);
         Vertex<K> last = vertexList.get(end);
         if(first!=null && last!=null){
-
-            boolean result1 = vertexList.get(init).getAdjacentList().remove(last);
+            boolean result1 = vertexList.get(init).deleteEdge(last, id);
             if(isDirected){
                 return result1;
             }
-            boolean result2 = vertexList.get(end).getAdjacentList().remove(first);
+            boolean result2 = vertexList.get(end).deleteEdge(first, id);
             return result2 && result1;
         }
         return false;
-    }*/
+    }
 
     @Override
     public boolean vertexExists(K vertex) {
@@ -275,23 +274,40 @@ public class Graph<K> implements IGraph<K>{
             u.color = Color.BLACK;
         }
     }
-}
-/*
-    public void Kruskal(){
-        Graph<K> A = new Graph<>(false);
-        DisjointSet<Vertex<K>> B = new DisjointSet<>();
-        for (Vertex<K> u: vertexList.values()) {
-            B.makeSet(u);
+
+    @Override
+    public ArrayList<Pair<Vertex<K>, Edge<K>>> Kruskal() {
+        ArrayList<Vertex<K>> vertices = new ArrayList<>(vertexList.values());
+        ArrayList<Pair<Vertex<K>, Edge<K>>> a = new ArrayList<>();
+        for (Vertex<K> vertex : vertices) {
+            for (Edge<K> edge: vertex.adjacentList) {
+                a.add(new Pair<>(vertex, edge));
+            }
         }
-        ArrayList<Vertex<K>> as = new ArrayList<>(vertexList.values());
-        ArrayList<Edge<K>> bd = new ArrayList<>();
-        for (Vertex<K> a: as) {
-            bd.addAll(a.getAdjacentList());
+        Comparator<Pair<Vertex<K>, Edge<K>>> pairComparator = (o1, o2) ->
+                o1.getValue2().getWeight() - o2.getValue2().getWeight();
+
+        a.sort(pairComparator);
+
+        DisjointSet<Vertex<K>> disjointSet = new DisjointSet<>();
+        for (Vertex<K> vertex : vertices) {
+            disjointSet.makeSet(vertex);
         }
-        bd.sort(new EdgeComparator<K>());
-        for (Vertex<K> v:bd) {
-            if(B.findSet(v) != B.findSet())<
+
+        ArrayList<Pair<Vertex<K>, Edge<K>>> mst = new ArrayList<>();
+
+        for (Pair<Vertex<K>, Edge<K>> edge : a) {
+            Vertex<K> u = edge.getValue1();
+            Vertex<K> v = edge.getValue2().getVertex();
+            if (disjointSet.findSet(u) != disjointSet.findSet(v)) {
+                mst.add(edge);
+                disjointSet.union(u, v);
+            }
         }
-        
+
+        return mst;
+
     }
-*/
+}
+
+

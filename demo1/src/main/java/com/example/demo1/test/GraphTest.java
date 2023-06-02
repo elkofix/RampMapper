@@ -148,58 +148,111 @@ public class GraphTest<K> {
         //Como el grafo permite tener mas de un camino entre dos vertices deberia ser true
         assertTrue(result1);
         assertTrue(result2);
-    }/*
+    }
     @Test
-    void deleteEdgeTest() {
+    public void deleteEdgeTest() {
+        setUp();
         graph.addVertex(1);
         graph.addVertex(2);
-        graph.addEdge(1, 2);
-        graph.deleteEdge(1, 2);
+        graph.addEdge(1, 2, 5,"1to2");
+        graph.deleteEdge(1, 2, "1to2");
         boolean exist = graph.edgeExists(1, 2);
         assertFalse(exist);
     }
 
     @Test
-    void deleteNotExistingEdgeTest() {
+    public void deleteEdgeMatrixTest() {
+        setUp2();
+        graphM.addVertex(1);
+        graphM.addVertex(2);
+        graphM.addEdge(1, 2, 5,"1to2");
+        graphM.deleteEdge(1, 2, "1to2");
+        boolean exist = graphM.edgeExists(1, 2);
+        assertFalse(exist);
+    }
+
+    @Test
+    public void deleteNotExistingEdgeTest() {
+        setUp();
         graph.addVertex(1);
         graph.addVertex(2);
-        boolean result = graph.deleteEdge(1, 2);
+        boolean result = graph.deleteEdge(1, 2, "1to2");
         assertFalse(result);
     }
 
     @Test
-    void deleteEdgeNotExistingVertexTest() {
+    public void deleteNotExistingEdgeMatrixTest() {
+        setUp2();
+        graphM.addVertex(1);
+        graphM.addVertex(2);
+        boolean result = graphM.deleteEdge(1, 2, "1to2");
+        assertFalse(result);
+    }
+    @Test
+    public void deleteEdgeNotExistingVertexTest() {
+        setUp();
         graph.addVertex(1);
-        boolean result = graph.deleteEdge(1, 2);
+        boolean result = graph.deleteEdge(1, 2, "1to2");
         assertFalse(result);
     }
 
     @Test
-    void deleteVertexTest() {
+    public void deleteEdgeNotExistingVertexMatrixTest() {
+        setUp2();
+        graphM.addVertex(1);
+        boolean result = graphM.deleteEdge(1, 2, "1to2");
+        assertFalse(result);
+    }
+
+    @Test
+    public void deleteVertexTest() {
+        setUp();
         graph.addVertex(1);
         graph.addVertex(2);
         graph.addVertex(3);
         graph.addVertex(4);
-        graph.addEdge(1, 2);
-        graph.addEdge(3, 2);
-        graph.addEdge(3, 4);
+        graph.addEdge(1, 2, 2,"1to2");
+        graph.addEdge(1, 3, 2,"1to3");
+        graph.addEdge(3, 2, 1,"3to2");
+        graph.addEdge(3, 4, 3,"3to4");
         graph.deleteVertex(1);
         boolean exist = graph.edgeExists(1, 2);
+        boolean exist2 = graph.edgeExists(1, 3);
         assertFalse(exist);
+        assertFalse(exist2);
     }
 
     @Test
-    void deleteVertexDirectTest() {
+    public void deleteVertexMatrixTest() {
+        setUp2();
+        graphM.addVertex(1);
+        graphM.addVertex(2);
+        graphM.addVertex(3);
+        graphM.addVertex(4);
+        graphM.addEdge(1, 2, 2,"1to2");
+        graphM.addEdge(1, 3, 2,"1to3");
+        graphM.addEdge(3, 2, 1,"3to2");
+        graphM.addEdge(3, 4, 3,"3to4");
+        graphM.deleteVertex(1);
+        boolean exist = graphM.edgeExists(1, 2);
+        boolean exist2 = graphM.edgeExists(1, 3);
+        assertFalse(exist);
+        assertFalse(exist2);
+    }
+
+    @Test
+    public void deleteVertexDirectTest() {
+        setUp();
         graph.addVertex(1);
         graph.addVertex(2);
         graph.addVertex(3);
         graph.addVertex(4);
-        graph.addEdge(1, 2);
+        graph.addEdge(1,  2, 2, "1to2");
         Vertex<Integer> ver = graph.getVertexList().get(2);
         boolean result1 = ver.getAdjacentList().isEmpty();
         graph.deleteVertex(1);
         Vertex<Integer> result = graph.getVertexList().get(1);
-
+        ver = graph.getVertexList().get(2);
         boolean result2 = ver.getAdjacentList().isEmpty();
         assertFalse(result1);
         assertTrue(result2);
@@ -207,14 +260,42 @@ public class GraphTest<K> {
     }
 
     @Test
-    void deleteNotExistingVertexTest() {
+    public void deleteVertexDirectMatrixTest() {
+        setUp2();
+        graphM.addVertex(1);
+        graphM.addVertex(2);
+        graphM.addVertex(3);
+        graphM.addVertex(4);
+        graphM.addEdge(1,  2, 2, "1to2");
+        Vertex<Integer> ver = graphM.getVertexList().get(2);
+        boolean result1 = ver.getAdjacentList().isEmpty();
+        graphM.deleteVertex(1);
+        Vertex<Integer> result = graphM.getVertexList().get(1);
+        Integer result2 = graphM.adjacentMatrix.getValor(1, 2);
+        assertFalse(result1);
+        assertNull(result2);
+        assertNull(result);
+    }
+
+    @Test
+    public void deleteNotExistingVertexTest() {
+        setUp();
         graph.addVertex(2);
         graph.addVertex(3);
         graph.addVertex(4);
         boolean result = graph.deleteVertex(1);
         assertFalse(result);
     }
-*/
+
+    @Test
+    public void deleteNotExistingVertexMatrixTest() {
+        setUp2();
+        graphM.addVertex(2);
+        graphM.addVertex(3);
+        graphM.addVertex(4);
+        boolean result = graphM.deleteVertex(1);
+        assertFalse(result);
+    }
     @Test
     public void BFSTestParents() {
         setUp();
@@ -785,7 +866,84 @@ public class GraphTest<K> {
             Vertex<String> parent = vertex.getParent();
             if (parent != null) {
                 System.out.println(parent.getValue() + " - " + vertex.getValue()+": "+vertex.getWeight(parent));
+            }else{
+                System.out.println("null");
             }
         }
     }
+
+    @Test
+    public void KruskalTest(){
+        setUp();
+        Graph<String> graphS = new Graph<>(false);
+        ArrayList<Vertex<String>> vrtx = new ArrayList<>();
+        Vertex<String > vr = new Vertex<>("SF");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("DE");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("CH");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("NY");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("AT");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        graphS.addEdge("SF", "CH",1200, "");
+        graphS.addEdge("DE", "CH" ,1300, "");
+        graphS.addEdge("DE", "AT" ,1400, "");
+        graphS.addEdge("DE", "NY" ,1600, "");
+        graphS.addEdge("SF", "DE" ,900, "");
+        graphS.addEdge("SF", "AT" ,2200, "");
+        graphS.addEdge("SF", "NY" ,2000, "");
+        graphS.addEdge("CH", "AT" ,700, "");
+        graphS.addEdge("CH", "NY" ,1000, "");
+        graphS.addEdge("NY", "AT" ,800, "");
+        graphS.Prim();
+        ArrayList<Pair<Vertex<String>, Edge<String>>> vertexList = graphS.Kruskal();
+        for (Pair<Vertex<String>, Edge<String>> vertex : vertexList) {
+            System.out.println(vertex.getValue1().getValue() + " -> "+vertex.getValue2().getVertex().getValue()+" "+vertex.getValue2().getWeight());
+        }
+    }
+
+    @Test
+    public void KruskalMatrixTest(){
+        setUp();
+        Graph<String> graphS = new Graph<>(false);
+        ArrayList<Vertex<String>> vrtx = new ArrayList<>();
+        Vertex<String > vr = new Vertex<>("SF");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("DE");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("CH");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("NY");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        vr = new Vertex<>("AT");
+        vrtx.add(vr);
+        graphS.addVertex(vr);
+        graphS.addEdge("SF", "CH",1200, "");
+        graphS.addEdge("DE", "CH" ,1300, "");
+        graphS.addEdge("DE", "AT" ,1400, "");
+        graphS.addEdge("DE", "NY" ,1600, "");
+        graphS.addEdge("SF", "DE" ,900, "");
+        graphS.addEdge("SF", "AT" ,2200, "");
+        graphS.addEdge("SF", "NY" ,2000, "");
+        graphS.addEdge("CH", "AT" ,700, "");
+        graphS.addEdge("CH", "NY" ,1000, "");
+        graphS.addEdge("NY", "AT" ,800, "");
+        graphS.Prim();
+        ArrayList<Pair<Vertex<String>, Edge<String>>> vertexList = graphS.Kruskal();
+        for (Pair<Vertex<String>, Edge<String>> vertex : vertexList) {
+            System.out.println(vertex.getValue1().getValue() + " -> "+vertex.getValue2().getVertex().getValue()+" "+vertex.getValue2().getWeight());
+        }
+    }
+
 }
