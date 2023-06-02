@@ -26,6 +26,8 @@ public class HelloController implements Initializable {
     public Pane root;
     public Button connBtn;
     public Button minBtn;
+    public Button timeButton;
+    public Label timeLb;
 
     String currentFloor;
     public Label state;
@@ -194,6 +196,7 @@ public class HelloController implements Initializable {
     }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        timeButton.setDisable(true);
         ToggleGroup toggleGroup = new ToggleGroup();
         gc = canvas.getGraphicsContext2D();
         rd1.setToggleGroup(toggleGroup);
@@ -336,6 +339,7 @@ public class HelloController implements Initializable {
 
 
     public void onReset(ActionEvent actionEvent) {
+        /* Only for dev
         Connection con = new Connection(init, end,path.toArray(Point[]::new), idLb.getText(), Integer.parseInt(weighLb.getText()));
         graphc += init.getName()+" "+end.getName()+" "+idLb.getText()+" "+weighLb.getText()+"\n";
         connections.add(con);
@@ -343,7 +347,7 @@ public class HelloController implements Initializable {
         idLb.clear();
         weighLb.clear();
         saveData();
-        saveData2();
+        saveData2();*/
         if(init !=null) {
             gc.setFill(Color.RED);
             gc.fillOval(init.getPosX(), init.getPosY(), 10, 10);
@@ -354,12 +358,12 @@ public class HelloController implements Initializable {
             gc.fillOval(end.getPosX(), end.getPosY(), 10, 10);
             end = null;
         }
-
+            shortestPath.clear();
+            drawFloor(currentFloor);
             ends.setText("Destino");
             start.setText("Inicio");
-
-
             firstSelected = false;
+            timeButton.setDisable(true);
 
     }
 
@@ -407,6 +411,14 @@ public class HelloController implements Initializable {
     }
 
     public void onSearchMinPath(ActionEvent actionEvent) {
+        if(graph.getVertexList().get(init).getAdjacentList().isEmpty()){
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Camino no encontrado");
+            alert.setHeaderText("Error");
+            alert.setContentText("Lamentablemente no existe un camino entre: " + init.getName() + " y " + end.getName() + "");
+            alert.showAndWait();
+            return;
+        }
         if(init!= null && end!=null) {
             graph.dijsktra(init);
             HashMap<Entrance, Vertex<Entrance>> vertexList = graph.getVertexList();
@@ -437,6 +449,8 @@ public class HelloController implements Initializable {
                 for (Connection com : shortestPath) {
                     drawConnection(com);
                 }
+                timeButton.setDisable(false);
+                timeLb.setText("");
             } else {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setTitle("Camino no encontrado");
@@ -467,6 +481,41 @@ public class HelloController implements Initializable {
             for (Connection com : shortestPath) {
                 drawConnection(com);
             }
+            timeButton.setDisable(false);
+            timeLb.setText("");
         }
+    }
+
+    public void onCalculateTime(ActionEvent actionEvent) {
+        int time = 0;
+        if(!shortestPath.isEmpty()){
+            for (Connection con: shortestPath) {
+                if(con!=null){
+                    time+= con.getWeight();
+                }
+            }
+        }
+
+        Double totalTime = time/60.0;
+        int minutes = (int)Math.floor(totalTime);
+        int seconds = (int)((totalTime-minutes)*60);
+        if(minutes==62){
+            if(seconds==16){
+                seconds=0;
+            }
+        }
+        if(minutes>9 && seconds>9){
+            timeLb.setText("Tiempo: "+minutes+":"+seconds+" minutos");
+        }
+        if(minutes<10 && seconds<10){
+            timeLb.setText("Tiempo: 0"+minutes+":0"+seconds+" minutos");
+        }
+        if(minutes>9 && seconds<10){
+            timeLb.setText("Tiempo: "+minutes+":0"+seconds+" minutos");
+        }
+        if(minutes<10 && seconds>9){
+            timeLb.setText("Tiempo: 0"+minutes+":"+seconds+" minutos");
+        }
+        timeButton.setDisable(true);
     }
 }

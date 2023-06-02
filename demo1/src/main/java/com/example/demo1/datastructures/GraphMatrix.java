@@ -224,25 +224,27 @@ public class GraphMatrix<K> implements IGraph<K>{
     @Override
     public Pair<int[][], MatrizGenerica<Vertex<K>, Vertex<K>>> floyWarshall() {
         ArrayList<Vertex<K>> vrtx = new ArrayList<>(vertexList.values());
-        int[][] distances = new int[vertexList.size()][vertexList.size()];
+        int[][] dist = new int[vertexList.size()][vertexList.size()];
         MatrizGenerica<Vertex<K>, Vertex<K>> parents = new MatrizGenerica<>();
         for (int i = 0; i < vrtx.size(); i++) {
             for (int j = 0; j < vrtx.size(); j++) {
-                distances[i][j] = Integer.MAX_VALUE;
+                dist[i][j] = Integer.MAX_VALUE;
                 parents.setValor(vrtx.get(i), vrtx.get(j), null);
             }
-            distances[i][i] = 0;
+            dist[i][i] = 0;
             parents.setValor(vrtx.get(i), vrtx.get(i), vrtx.get(i));
         }
+        int uI;
+        int vI;
         for (Vertex<K> u : vrtx) {
-            int uIndex = vrtx.indexOf(u);
+            uI = vrtx.indexOf(u);
             for (int i = 0; i < vertexList.values().size(); i++) {
                 if (adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue()) != null && adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue()) != 0){
                     Vertex<K> v = vrtx.get(i);
                     int p = adjacentMatrix.getValor(u.getValue(), vrtx.get(i).getValue());
-                    int vIndex = vrtx.indexOf(v);
-                    distances[uIndex][vIndex] = p;
-                    parents.setValor(vrtx.get(uIndex), vrtx.get(vIndex), u);
+                    vI = vrtx.indexOf(v);
+                    dist[uI][vI] = p;
+                    parents.setValor(vrtx.get(uI), vrtx.get(vI), u);
                 }
             }
         }
@@ -250,15 +252,20 @@ public class GraphMatrix<K> implements IGraph<K>{
         for (int k = 0; k < vrtx.size(); k++) {
             for (int i = 0; i < vrtx.size(); i++) {
                 for (int j = 0; j < vrtx.size(); j++) {
-                    int distance = (distances[i][k] == Integer.MAX_VALUE || distances[k][j] == Integer.MAX_VALUE) ? Integer.MAX_VALUE : distances[i][k] + distances[k][j];
-                    if (distances[i][j] > distance) {
-                        distances[i][j] = distance;
+                    int dis;
+                    if (dist[i][k] == Integer.MAX_VALUE || dist[k][j] == Integer.MAX_VALUE) {
+                        dis = Integer.MAX_VALUE;
+                    } else {
+                        dis = dist[i][k] + dist[k][j];
+                    }
+                    if (dist[i][j] > dis) {
+                        dist[i][j] = dis;
                         parents.setValor(vrtx.get(i), vrtx.get(j), parents.getValor(vrtx.get(k), vrtx.get(j)));
                     }
                 }
             }
         }
-        return new Pair<>(distances, parents);
+        return new Pair<>(dist, parents);
     }
     @Override
     public void Prim() {

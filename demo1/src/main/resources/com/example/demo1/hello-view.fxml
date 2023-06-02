@@ -8,8 +8,14 @@
 <Pane fx:id="root" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="820.0" prefWidth="1350.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo1.controller.HelloController">
    <children>
       <Canvas fx:id="canvas" height="616.0" layoutX="77.0" layoutY="59.0" width="933.0" />
-      <Button onAction="#onFindMinSpan" layoutX="1113.0" layoutY="140.0" mnemonicParsing="false" text="Encontrar recubirmiento minomo" />
-      <Button fx:id="minBtn" layoutX="1113.0" layoutY="97.0" mnemonicParsing="false" onAction="#onSearchMinPath" text="Encontra camino minimo" />
+      <Button layoutX="1113.0" layoutY="106.0" mnemonicParsing="false" onAction="#onFindMinSpan" text="Encontrar recubirmiento minomo">
+         <font>
+            <Font name="Roboto Light" size="12.0" />
+         </font></Button>
+      <Button fx:id="minBtn" layoutX="1114.0" layoutY="61.0" mnemonicParsing="false" onAction="#onSearchMinPath" text="Encontrar camino minimo">
+         <font>
+            <Font name="Roboto Light" size="12.0" />
+         </font></Button>
 
       <RadioButton fx:id="rd1" layoutX="1051.0" layoutY="65.0" mnemonicParsing="false" text="1" />
       <RadioButton fx:id="rd2" layoutX="1051.0" layoutY="101.0" mnemonicParsing="false" text="2" />
@@ -26,11 +32,15 @@
             <Font name="Roboto Light" size="36.0" />
          </font>
       </Label>
-      <Button fx:id="connBtn" layoutX="958.0" layoutY="27.0" mnemonicParsing="false" onAction="#onAddConnection" text="AddConnection" />
-      <Label fx:id="state" layoutX="1079.0" layoutY="31.0" text="Label" />
-      <TextField fx:id="idLb" layoutX="1187.0" layoutY="27.0" />
-      <TextField fx:id="weighLb" layoutX="1187.0" layoutY="70.0" />
-      <Label layoutX="1187.0" layoutY="5.0" text="ID" />
-      <Label layoutX="1187.0" layoutY="51.0" text="Weight" />
+      <Button fx:id="timeButton" layoutX="1112.0" layoutY="153.0" mnemonicParsing="false" onAction="#onCalculateTime" text="Calcular tiempo de camino">
+         <font>
+            <Font name="Roboto Light" size="12.0" />
+         </font>
+      </Button>
+      <Label fx:id="timeLb" layoutX="1114.0" layoutY="202.0">
+         <font>
+            <Font size="24.0" />
+         </font>
+      </Label>
    </children>
 </Pane>
